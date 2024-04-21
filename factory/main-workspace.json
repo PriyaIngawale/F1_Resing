@@ -1,0 +1,9 @@
+{
+	"name": "main-workspace",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "5877c601-c07b-426d-a60b-d9a3122e50da",
+		"tenantId": "1f23aa84-b586-41ea-80ee-c26addc26fd2"
+	}
+}
