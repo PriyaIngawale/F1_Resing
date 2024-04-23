@@ -1,0 +1,9 @@
+{
+	"name": "df-project-f1",
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "a8af5272-a2d9-4d73-84eb-fc1b7bdcfefd",
+		"tenantId": "a945a583-4705-4d8e-a77f-ae7bcca32d53"
+	}
+}
