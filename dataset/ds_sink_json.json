@@ -2,7 +2,7 @@
 	"name": "ds_sink_json",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "ls_saf1racing_adlsgen2",
+			"referenceName": "ds_sink_jsons",
 			"type": "LinkedServiceReference"
 		},
 		"parameters": {
