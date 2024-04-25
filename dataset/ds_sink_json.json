@@ -25,8 +25,7 @@
 				"folderPath": {
 					"value": "@dataset().ds_param_directory_path",
 					"type": "Expression"
-				},
-				"fileSystem": "f1-project"
+				}
 			}
 		},
 		"schema": {
