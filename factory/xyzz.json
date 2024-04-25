@@ -1,0 +1,9 @@
+{
+	"name": "xyzz",
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "daead84c-1901-4da2-b593-cf18516085c5",
+		"tenantId": "a945a583-4705-4d8e-a77f-ae7bcca32d53"
+	}
+}
