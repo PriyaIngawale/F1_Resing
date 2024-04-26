@@ -141,7 +141,14 @@
 						{
 							"name": "act_cpy_race_data",
 							"type": "Copy",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "act_log_insert_race",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"policy": {
 								"timeout": "0.12:00:00",
 								"retry": 0,
@@ -230,7 +237,7 @@
 							}
 						},
 						{
-							"name": "act_log_insert_driver",
+							"name": "act_log_insert_race",
 							"type": "Lookup",
 							"dependsOn": [],
 							"policy": {
@@ -246,6 +253,76 @@
 									"type": "AzurePostgreSqlSource",
 									"query": {
 										"value": "insert into public.audit (job_name,task_name,status,start_date,end_date) values ('@{pipeline().parameters.pl_param_file_name}','copy_act','In Progress','@{utcnow()}','@{utcnow()}');\n\nselect * from public.audit;",
+										"type": "Expression"
+									},
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "ds_postgres",
+									"type": "DatasetReference"
+								},
+								"firstRowOnly": false
+							}
+						},
+						{
+							"name": "act_log_update_complete_race",
+							"type": "Lookup",
+							"dependsOn": [
+								{
+									"activity": "act_cpy_race_data",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzurePostgreSqlSource",
+									"query": {
+										"value": "update public.audit\nset status='completed', \nend_date = start_date + interval '@{activity('act_cpy_drivers').output.copyDuration} seconds'\nwhere job_name = '@{pipeline().parameters.pl_param_file_name}';\n\n\nselect * from public.audit;",
+										"type": "Expression"
+									},
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "ds_postgres",
+									"type": "DatasetReference"
+								},
+								"firstRowOnly": false
+							}
+						},
+						{
+							"name": "act_log_update_fail_race",
+							"type": "Lookup",
+							"dependsOn": [
+								{
+									"activity": "act_cpy_race_data",
+									"dependencyConditions": [
+										"Failed"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzurePostgreSqlSource",
+									"query": {
+										"value": "update public.audit\nset status='failed',\nend_date = start_date + interval '@{activity('act_cpy_drivers').output.copyDuration} seconds'\nwhere job_name = '@{pipeline().parameters.pl_param_file_name}';\n\n\nselect * from public.audit;",
 										"type": "Expression"
 									},
 									"partitionOption": "None"

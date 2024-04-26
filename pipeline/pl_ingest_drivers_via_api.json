@@ -148,7 +148,7 @@
 				}
 			},
 			{
-				"name": "act_log_update_complete_driver_",
+				"name": "act_log_update_complete_driver",
 				"type": "Lookup",
 				"dependsOn": [
 					{
