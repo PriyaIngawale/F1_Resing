@@ -148,7 +148,7 @@
 				}
 			},
 			{
-				"name": "act_log_insert_driver_copy1",
+				"name": "act_log_update_complete_driver_",
 				"type": "Lookup",
 				"dependsOn": [
 					{
@@ -183,7 +183,7 @@
 				}
 			},
 			{
-				"name": "act_log_insert_driver_copy1_copy1",
+				"name": "act_log_update_fail_driver",
 				"type": "Lookup",
 				"dependsOn": [
 					{
