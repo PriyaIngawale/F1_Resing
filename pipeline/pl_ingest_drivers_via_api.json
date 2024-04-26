@@ -170,7 +170,7 @@
 					"source": {
 						"type": "AzurePostgreSqlSource",
 						"query": {
-							"value": "update public.audit\nset status='completed',start_date = '@{activity('act_cpy_drivers').output.ExecutionStartTime}' , end_date = '@{activity('act_cpy_drivers').output.ExecutionEnd}'\nwhere job_name = '@{pipeline().parameters.pl_param_file_name}'\n\n\nselect * from public.audit;",
+							"value": "update public.audit\nset status='completed', end_date = \n'@{addToTime(start_date,'@{activity('act_cpy_drivers').output}','seconds')}'\nwhere job_name = '@{pipeline().parameters.pl_param_file_name}'\n\n\nselect * from public.audit;\n\naddToTime(start_date,'@{activity('act_cpy_drivers').output}','seconds')",
 							"type": "Expression"
 						},
 						"partitionOption": "None"
@@ -205,7 +205,7 @@
 					"source": {
 						"type": "AzurePostgreSqlSource",
 						"query": {
-							"value": "update public.audit\nset status='failed',start_date = '@{activity('act_cpy_drivers').output.ExecutionStartTime}' , end_date = '@{activity('act_cpy_drivers').output.ExecutionEnd}'\nwhere job_name = '@{pipeline().parameters.pl_param_file_name}'\n\n\nselect * from public.audit;",
+							"value": "update public.audit\nset status='failed',start_date = '@{activity('act_cpy_drivers').output.ExecutionStart}' , end_date = '@{activity('act_cpy_drivers').output.ExecutionEnd}'\nwhere job_name = '@{pipeline().parameters.pl_param_file_name}'\n\n\nselect * from public.audit;",
 							"type": "Expression"
 						},
 						"partitionOption": "None"
