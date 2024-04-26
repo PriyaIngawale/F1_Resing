@@ -24,7 +24,14 @@
 						{
 							"name": "act_cpy_round_result",
 							"type": "Copy",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "act_log_insert_race_result",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"policy": {
 								"timeout": "0.12:00:00",
 								"retry": 0,
@@ -88,7 +95,13 @@
 							"type": "Copy",
 							"dependsOn": [
 								{
-									"activity": "act_cpy_round_result",
+									"activity": "act_log_insert_lap_times",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								},
+								{
+									"activity": "act_log_update_complete_race_result",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -157,7 +170,13 @@
 							"type": "Copy",
 							"dependsOn": [
 								{
-									"activity": "act_cpy_lap_timees",
+									"activity": "act_log_insert_pit_stops",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								},
+								{
+									"activity": "act_log_update_complete_lap_times",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -226,7 +245,13 @@
 							"type": "Copy",
 							"dependsOn": [
 								{
-									"activity": "act_cpy_pitstops",
+									"activity": "act_log_insert_qualifying",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								},
+								{
+									"activity": "act_log_update_complete_pit_stops",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -289,6 +314,398 @@
 									}
 								}
 							]
+						},
+						{
+							"name": "act_log_insert_race_result",
+							"type": "Lookup",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzurePostgreSqlSource",
+									"query": {
+										"value": "insert into public.audit (job_name,task_name,status,start_date,end_date) values ('@{concat('lap_times',pipeline().parameters.season_year,'_',item().round)}','copy_act','In Progress','@{convertFromUtc(utcnow(),'India Standard Time')}','@{convertFromUtc(utcnow(),'India Standard Time')}');\n\nselect * from public.audit;",
+										"type": "Expression"
+									},
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "ds_postgres",
+									"type": "DatasetReference"
+								},
+								"firstRowOnly": false
+							}
+						},
+						{
+							"name": "act_log_update_complete_race_result",
+							"type": "Lookup",
+							"dependsOn": [
+								{
+									"activity": "act_cpy_round_result",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzurePostgreSqlSource",
+									"query": {
+										"value": "update public.audit\nset status='completed', \nend_date = start_date + interval '@{activity('act_cpy_round_result').output.copyDuration} seconds'\nwhere job_name = '@{concat('race_result',pipeline().parameters.season_year,'_',item().round)}';\n\n\nselect * from public.audit;",
+										"type": "Expression"
+									},
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "ds_postgres",
+									"type": "DatasetReference"
+								},
+								"firstRowOnly": false
+							}
+						},
+						{
+							"name": "act_log_update_fail_race_result",
+							"type": "Lookup",
+							"dependsOn": [
+								{
+									"activity": "act_cpy_round_result",
+									"dependencyConditions": [
+										"Failed"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzurePostgreSqlSource",
+									"query": {
+										"value": "update public.audit\nset status='failed',\nend_date = start_date + interval '@{activity('act_cpy_round_result').output.copyDuration} seconds'\nwhere job_name ='@{concat('race_result',pipeline().parameters.season_year,'_',item().round)}';\n\n\nselect * from public.audit;",
+										"type": "Expression"
+									},
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "ds_postgres",
+									"type": "DatasetReference"
+								},
+								"firstRowOnly": false
+							}
+						},
+						{
+							"name": "act_log_insert_lap_times",
+							"type": "Lookup",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzurePostgreSqlSource",
+									"query": {
+										"value": "insert into public.audit (job_name,task_name,status,start_date,end_date) values ('@{concat('lap_times',pipeline().parameters.season_year,'_',item().round)}','copy_act','In Progress','@{convertFromUtc(utcnow(),'India Standard Time')}','@{convertFromUtc(utcnow(),'India Standard Time')}');\n\nselect * from public.audit;",
+										"type": "Expression"
+									},
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "ds_postgres",
+									"type": "DatasetReference"
+								},
+								"firstRowOnly": false
+							}
+						},
+						{
+							"name": "act_log_update_complete_lap_times",
+							"type": "Lookup",
+							"dependsOn": [
+								{
+									"activity": "act_cpy_lap_timees",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzurePostgreSqlSource",
+									"query": {
+										"value": "update public.audit\nset status='completed', \nend_date = start_date + interval '@{activity('act_cpy_round_result').output.copyDuration} seconds'\nwhere job_name = '@{concat('lap_times',pipeline().parameters.season_year,'_',item().round)}';\n\n\nselect * from public.audit;",
+										"type": "Expression"
+									},
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "ds_postgres",
+									"type": "DatasetReference"
+								},
+								"firstRowOnly": false
+							}
+						},
+						{
+							"name": "act_log_update_fail_lap_times",
+							"type": "Lookup",
+							"dependsOn": [
+								{
+									"activity": "act_cpy_lap_timees",
+									"dependencyConditions": [
+										"Failed"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzurePostgreSqlSource",
+									"query": {
+										"value": "update public.audit\nset status='failed',\nend_date = start_date + interval '@{activity('act_cpy_round_result').output.copyDuration} seconds'\nwhere job_name ='@{concat('lap_times',pipeline().parameters.season_year,'_',item().round)}';\n\n\nselect * from public.audit;",
+										"type": "Expression"
+									},
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "ds_postgres",
+									"type": "DatasetReference"
+								},
+								"firstRowOnly": false
+							}
+						},
+						{
+							"name": "act_log_insert_pit_stops",
+							"type": "Lookup",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzurePostgreSqlSource",
+									"query": {
+										"value": "insert into public.audit (job_name,task_name,status,start_date,end_date) values ('@{concat('pit_stops',pipeline().parameters.season_year,'_',item().round)}','copy_act','In Progress','@{convertFromUtc(utcnow(),'India Standard Time')}','@{convertFromUtc(utcnow(),'India Standard Time')}');\n\nselect * from public.audit;",
+										"type": "Expression"
+									},
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "ds_postgres",
+									"type": "DatasetReference"
+								},
+								"firstRowOnly": false
+							}
+						},
+						{
+							"name": "act_log_update_complete_pit_stops",
+							"type": "Lookup",
+							"dependsOn": [
+								{
+									"activity": "act_cpy_pitstops",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzurePostgreSqlSource",
+									"query": {
+										"value": "update public.audit\nset status='completed', \nend_date = start_date + interval '@{activity('act_cpy_round_result').output.copyDuration} seconds'\nwhere job_name = '@{concat('pit_stops',pipeline().parameters.season_year,'_',item().round)}';\n\n\nselect * from public.audit;",
+										"type": "Expression"
+									},
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "ds_postgres",
+									"type": "DatasetReference"
+								},
+								"firstRowOnly": false
+							}
+						},
+						{
+							"name": "act_log_update_fail_pit_stops",
+							"type": "Lookup",
+							"dependsOn": [
+								{
+									"activity": "act_cpy_pitstops",
+									"dependencyConditions": [
+										"Failed"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzurePostgreSqlSource",
+									"query": {
+										"value": "update public.audit\nset status='failed',\nend_date = start_date + interval '@{activity('act_cpy_round_result').output.copyDuration} seconds'\nwhere job_name ='@{concat('pit_stops',pipeline().parameters.season_year,'_',item().round)}';\n\n\nselect * from public.audit;",
+										"type": "Expression"
+									},
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "ds_postgres",
+									"type": "DatasetReference"
+								},
+								"firstRowOnly": false
+							}
+						},
+						{
+							"name": "act_log_insert_qualifying",
+							"type": "Lookup",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzurePostgreSqlSource",
+									"query": {
+										"value": "insert into public.audit (job_name,task_name,status,start_date,end_date) values ('@{concat('qualifying',pipeline().parameters.season_year,'_',item().round)}','copy_act','In Progress','@{convertFromUtc(utcnow(),'India Standard Time')}','@{convertFromUtc(utcnow(),'India Standard Time')}');\n\nselect * from public.audit;",
+										"type": "Expression"
+									},
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "ds_postgres",
+									"type": "DatasetReference"
+								},
+								"firstRowOnly": false
+							}
+						},
+						{
+							"name": "act_log_update_complete_qualifying",
+							"type": "Lookup",
+							"dependsOn": [
+								{
+									"activity": "act_cpy_qualifying",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzurePostgreSqlSource",
+									"query": {
+										"value": "update public.audit\nset status='completed', \nend_date = start_date + interval '@{activity('act_cpy_round_result').output.copyDuration} seconds'\nwhere job_name = '@{concat('qualifying',pipeline().parameters.season_year,'_',item().round)}';\n\n\nselect * from public.audit;",
+										"type": "Expression"
+									},
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "ds_postgres",
+									"type": "DatasetReference"
+								},
+								"firstRowOnly": false
+							}
+						},
+						{
+							"name": "act_log_update_fail_qualifying",
+							"type": "Lookup",
+							"dependsOn": [
+								{
+									"activity": "act_cpy_qualifying",
+									"dependencyConditions": [
+										"Failed"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzurePostgreSqlSource",
+									"query": {
+										"value": "update public.audit\nset status='failed',\nend_date = start_date + interval '@{activity('act_cpy_round_result').output.copyDuration} seconds'\nwhere job_name ='@{concat('qualifying',pipeline().parameters.season_year,'_',item().round)}';\n\n\nselect * from public.audit;",
+										"type": "Expression"
+									},
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "ds_postgres",
+									"type": "DatasetReference"
+								},
+								"firstRowOnly": false
+							}
 						}
 					]
 				}

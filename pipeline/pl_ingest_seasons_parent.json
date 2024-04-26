@@ -76,7 +76,7 @@
 				"type": "Lookup",
 				"dependsOn": [
 					{
-						"activity": "act_cpy_seasons",
+						"activity": "act_log_update_complete_season",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -212,7 +212,7 @@
 							"type": "ExecutePipeline",
 							"dependsOn": [
 								{
-									"activity": "act_cpy_race_data",
+									"activity": "act_log_update_complete_race",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -252,7 +252,7 @@
 								"source": {
 									"type": "AzurePostgreSqlSource",
 									"query": {
-										"value": "insert into public.audit (job_name,task_name,status,start_date,end_date) values ('@{concat('race_',item().season)}','copy_act','In Progress','@{utcnow()}','@{utcnow()}');\n\nselect * from public.audit;",
+										"value": "insert into public.audit (job_name,task_name,status,start_date,end_date) values ('@{concat('races_',item().season)}','copy_act','In Progress','@{convertFromUtc(utcnow(),'India Standard Time')}','@{convertFromUtc(utcnow(),'India Standard Time')}');\n\nselect * from public.audit;\n\n",
 										"type": "Expression"
 									},
 									"partitionOption": "None"
@@ -322,7 +322,7 @@
 								"source": {
 									"type": "AzurePostgreSqlSource",
 									"query": {
-										"value": "update public.audit\nset status='failed',\nend_date = start_date + interval '@{activity('act_cpy_race_data').output.copyDuration} seconds'\nwhere job_name = @{concat('race_',item().season)}';\n\n\nselect * from public.audit;",
+										"value": "update public.audit\nset status='failed',\nend_date = start_date + interval '@{activity('act_cpy_race_data').output.copyDuration} seconds'\nwhere job_name = '@{concat('race_',item().season)}';\n\n\nselect * from public.audit;",
 										"type": "Expression"
 									},
 									"partitionOption": "None"
@@ -353,7 +353,7 @@
 					"source": {
 						"type": "AzurePostgreSqlSource",
 						"query": {
-							"value": "insert into public.audit (job_name,task_name,status,start_date,end_date) values ('@{pipeline().parameters.pl_param_file_name}','copy_act','In Progress','@{utcnow()}','@{utcnow()}');\n\nselect * from public.audit;",
+							"value": "insert into public.audit (job_name,task_name,status,start_date,end_date) values ('@{pipeline().parameters.pl_param_file_name}','copy_act','In Progress','@{convertFromUtc(utcnow(),'India Standard Time')}','@{convertFromUtc(utcnow(),'India Standard Time')}');\n\nselect * from public.audit;\n\n",
 							"type": "Expression"
 						},
 						"partitionOption": "None"
@@ -407,7 +407,7 @@
 					{
 						"activity": "act_cpy_seasons",
 						"dependencyConditions": [
-							"Succeeded"
+							"Failed"
 						]
 					}
 				],

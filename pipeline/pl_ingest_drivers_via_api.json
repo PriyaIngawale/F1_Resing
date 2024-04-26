@@ -135,7 +135,7 @@
 					"source": {
 						"type": "AzurePostgreSqlSource",
 						"query": {
-							"value": "insert into public.audit (job_name,task_name,status,start_date,end_date) values ('@{pipeline().parameters.pl_param_file_name}','copy_act','In Progress','@{utcnow()}','@{utcnow()}');\n\nselect * from public.audit;",
+							"value": "insert into public.audit (job_name,task_name,status,start_date,end_date) values ('@{pipeline().parameters.pl_param_file_name}','copy_act','In Progress','@{convertFromUtc(utcnow(),'India Standard Time')}','@{convertFromUtc(utcnow(),'India Standard Time')}');\n\nselect * from public.audit;\n\n",
 							"type": "Expression"
 						},
 						"partitionOption": "None"
@@ -205,7 +205,7 @@
 					"source": {
 						"type": "AzurePostgreSqlSource",
 						"query": {
-							"value": "update public.audit\nset status='failed',\nend_date = start_date + interval '@{activity('act_cpy_drivers').output.copyDuration} seconds'\nwhere job_name = '@{pipeline().parameters.pl_param_file_name}';\n\n\nselect * from public.audit;",
+							"value": "update public.audit\nset status='failed', \nend_date = start_date + interval '@{activity('act_cpy_drivers').output.copyDuration} seconds'\nwhere job_name = '@{pipeline().parameters.pl_param_file_name}';\n\n\nselect * from public.audit;",
 							"type": "Expression"
 						},
 						"partitionOption": "None"
