@@ -1,0 +1,16 @@
+{
+	"name": "ds_postgres",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_postgres",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzurePostgreSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "public",
+			"table": "pl_audit_log"
+		}
+	}
+}

@@ -5,7 +5,14 @@
 			{
 				"name": "act_cpy_drivers",
 				"type": "Copy",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "act_log_insert_driver",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -108,6 +115,104 @@
 								"type": "Expression"
 							}
 						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "act_log_insert_driver",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzurePostgreSqlSource",
+						"query": {
+							"value": "insert into public.audit (job_name,task_name,status,start_date,end_date) values ('@{pipeline().parameters.pl_param_file_name}','copy_act','In Progress','@{utcnow()}','@{utcnow()}');\n\nselect * from public.audit;",
+							"type": "Expression"
+						},
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "ds_postgres",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "act_log_insert_driver_copy1",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "act_cpy_drivers",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzurePostgreSqlSource",
+						"query": {
+							"value": "update public.audit\nset status='completed',start_date = '@{activity('act_cpy_drivers').output.ExecutionStartTime}' , end_date = '@{activity('act_cpy_drivers').output.ExecutionEnd}'\nwhere job_name = '@{pipeline().parameters.pl_param_file_name}'\n\n\nselect * from public.audit;",
+							"type": "Expression"
+						},
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "ds_postgres",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "act_log_insert_driver_copy1_copy1",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "act_cpy_drivers",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzurePostgreSqlSource",
+						"query": {
+							"value": "update public.audit\nset status='failed',start_date = '@{activity('act_cpy_drivers').output.ExecutionStartTime}' , end_date = '@{activity('act_cpy_drivers').output.ExecutionEnd}'\nwhere job_name = '@{pipeline().parameters.pl_param_file_name}'\n\n\nselect * from public.audit;",
+							"type": "Expression"
+						},
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "ds_postgres",
+						"type": "DatasetReference"
 					},
 					"firstRowOnly": false
 				}
