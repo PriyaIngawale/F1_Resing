@@ -72,7 +72,7 @@
 				]
 			},
 			{
-				"name": "act_look_up_on_seasons",
+				"name": "act_look_up_on_circuits",
 				"type": "Lookup",
 				"dependsOn": [
 					{

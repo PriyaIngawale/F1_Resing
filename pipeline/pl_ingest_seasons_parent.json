@@ -287,7 +287,7 @@
 								"source": {
 									"type": "AzurePostgreSqlSource",
 									"query": {
-										"value": "update public.audit\nset status='completed', \nend_date = start_date + interval '@{activity('act_cpy_race_data').output.copyDuration} seconds'\nwhere job_name = '@{concat('race_',item().season)}';\n\n\nselect * from public.audit;",
+										"value": "update public.audit\nset status='completed', \nend_date = start_date + interval '@{activity('act_cpy_race_data').output.copyDuration} seconds'\nwhere job_name = '@{concat('races_',item().season)}';\n\n\nselect * from public.audit;",
 										"type": "Expression"
 									},
 									"partitionOption": "None"

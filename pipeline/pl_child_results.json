@@ -99,12 +99,6 @@
 									"dependencyConditions": [
 										"Succeeded"
 									]
-								},
-								{
-									"activity": "act_log_update_complete_race_result",
-									"dependencyConditions": [
-										"Succeeded"
-									]
 								}
 							],
 							"policy": {
@@ -174,12 +168,6 @@
 									"dependencyConditions": [
 										"Succeeded"
 									]
-								},
-								{
-									"activity": "act_log_update_complete_lap_times",
-									"dependencyConditions": [
-										"Succeeded"
-									]
 								}
 							],
 							"policy": {
@@ -246,12 +234,6 @@
 							"dependsOn": [
 								{
 									"activity": "act_log_insert_qualifying",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								},
-								{
-									"activity": "act_log_update_complete_pit_stops",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -331,7 +313,7 @@
 								"source": {
 									"type": "AzurePostgreSqlSource",
 									"query": {
-										"value": "insert into public.audit (job_name,task_name,status,start_date,end_date) values ('@{concat('lap_times',pipeline().parameters.season_year,'_',item().round)}','copy_act','In Progress','@{convertFromUtc(utcnow(),'India Standard Time')}','@{convertFromUtc(utcnow(),'India Standard Time')}');\n\nselect * from public.audit;",
+										"value": "insert into public.audit (job_name,task_name,status,start_date,end_date) values ('@{concat('race_result_',pipeline().parameters.season_year,'_',item().round)}','copy_act','In Progress','@{convertFromUtc(utcnow(),'India Standard Time')}','@{convertFromUtc(utcnow(),'India Standard Time')}');\n\nselect * from public.audit;",
 										"type": "Expression"
 									},
 									"partitionOption": "None"
@@ -366,7 +348,7 @@
 								"source": {
 									"type": "AzurePostgreSqlSource",
 									"query": {
-										"value": "update public.audit\nset status='completed', \nend_date = start_date + interval '@{activity('act_cpy_round_result').output.copyDuration} seconds'\nwhere job_name = '@{concat('race_result',pipeline().parameters.season_year,'_',item().round)}';\n\n\nselect * from public.audit;",
+										"value": "update public.audit\nset status='completed', \nend_date = start_date + interval '@{activity('act_cpy_round_result').output.copyDuration} seconds'\nwhere job_name = '@{concat('race_result_',pipeline().parameters.season_year,'_',item().round)}';\n\n\nselect * from public.audit;",
 										"type": "Expression"
 									},
 									"partitionOption": "None"
@@ -401,7 +383,7 @@
 								"source": {
 									"type": "AzurePostgreSqlSource",
 									"query": {
-										"value": "update public.audit\nset status='failed',\nend_date = start_date + interval '@{activity('act_cpy_round_result').output.copyDuration} seconds'\nwhere job_name ='@{concat('race_result',pipeline().parameters.season_year,'_',item().round)}';\n\n\nselect * from public.audit;",
+										"value": "update public.audit\nset status='failed',\nend_date = start_date + interval '@{activity('act_cpy_round_result').output.copyDuration} seconds'\nwhere job_name ='@{concat('race_result_',pipeline().parameters.season_year,'_',item().round)}';\n\n\nselect * from public.audit;",
 										"type": "Expression"
 									},
 									"partitionOption": "None"
@@ -416,7 +398,14 @@
 						{
 							"name": "act_log_insert_lap_times",
 							"type": "Lookup",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "act_log_update_complete_race_result",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"policy": {
 								"timeout": "0.12:00:00",
 								"retry": 0,
@@ -429,7 +418,7 @@
 								"source": {
 									"type": "AzurePostgreSqlSource",
 									"query": {
-										"value": "insert into public.audit (job_name,task_name,status,start_date,end_date) values ('@{concat('lap_times',pipeline().parameters.season_year,'_',item().round)}','copy_act','In Progress','@{convertFromUtc(utcnow(),'India Standard Time')}','@{convertFromUtc(utcnow(),'India Standard Time')}');\n\nselect * from public.audit;",
+										"value": "insert into public.audit (job_name,task_name,status,start_date,end_date) values ('@{concat('lap_times_',pipeline().parameters.season_year,'_',item().round)}','copy_act','In Progress','@{convertFromUtc(utcnow(),'India Standard Time')}','@{convertFromUtc(utcnow(),'India Standard Time')}');\n\nselect * from public.audit;",
 										"type": "Expression"
 									},
 									"partitionOption": "None"
@@ -464,7 +453,7 @@
 								"source": {
 									"type": "AzurePostgreSqlSource",
 									"query": {
-										"value": "update public.audit\nset status='completed', \nend_date = start_date + interval '@{activity('act_cpy_round_result').output.copyDuration} seconds'\nwhere job_name = '@{concat('lap_times',pipeline().parameters.season_year,'_',item().round)}';\n\n\nselect * from public.audit;",
+										"value": "update public.audit\nset status='completed', \nend_date = start_date + interval '@{activity('act_cpy_round_result').output.copyDuration} seconds'\nwhere job_name = '@{concat('lap_times_',pipeline().parameters.season_year,'_',item().round)}';\n\n\nselect * from public.audit;",
 										"type": "Expression"
 									},
 									"partitionOption": "None"
@@ -499,7 +488,7 @@
 								"source": {
 									"type": "AzurePostgreSqlSource",
 									"query": {
-										"value": "update public.audit\nset status='failed',\nend_date = start_date + interval '@{activity('act_cpy_round_result').output.copyDuration} seconds'\nwhere job_name ='@{concat('lap_times',pipeline().parameters.season_year,'_',item().round)}';\n\n\nselect * from public.audit;",
+										"value": "update public.audit\nset status='failed',\nend_date = start_date + interval '@{activity('act_cpy_round_result').output.copyDuration} seconds'\nwhere job_name ='@{concat('lap_times_',pipeline().parameters.season_year,'_',item().round)}';\n\n\nselect * from public.audit;",
 										"type": "Expression"
 									},
 									"partitionOption": "None"
@@ -514,7 +503,14 @@
 						{
 							"name": "act_log_insert_pit_stops",
 							"type": "Lookup",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "act_log_update_complete_lap_times",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"policy": {
 								"timeout": "0.12:00:00",
 								"retry": 0,
@@ -527,7 +523,7 @@
 								"source": {
 									"type": "AzurePostgreSqlSource",
 									"query": {
-										"value": "insert into public.audit (job_name,task_name,status,start_date,end_date) values ('@{concat('pit_stops',pipeline().parameters.season_year,'_',item().round)}','copy_act','In Progress','@{convertFromUtc(utcnow(),'India Standard Time')}','@{convertFromUtc(utcnow(),'India Standard Time')}');\n\nselect * from public.audit;",
+										"value": "insert into public.audit (job_name,task_name,status,start_date,end_date) values ('@{concat('pit_stops_',pipeline().parameters.season_year,'_',item().round)}','copy_act','In Progress','@{convertFromUtc(utcnow(),'India Standard Time')}','@{convertFromUtc(utcnow(),'India Standard Time')}');\n\nselect * from public.audit;",
 										"type": "Expression"
 									},
 									"partitionOption": "None"
@@ -562,7 +558,7 @@
 								"source": {
 									"type": "AzurePostgreSqlSource",
 									"query": {
-										"value": "update public.audit\nset status='completed', \nend_date = start_date + interval '@{activity('act_cpy_round_result').output.copyDuration} seconds'\nwhere job_name = '@{concat('pit_stops',pipeline().parameters.season_year,'_',item().round)}';\n\n\nselect * from public.audit;",
+										"value": "update public.audit\nset status='completed', \nend_date = start_date + interval '@{activity('act_cpy_round_result').output.copyDuration} seconds'\nwhere job_name = '@{concat('pit_stops_',pipeline().parameters.season_year,'_',item().round)}';\n\n\nselect * from public.audit;",
 										"type": "Expression"
 									},
 									"partitionOption": "None"
@@ -597,7 +593,7 @@
 								"source": {
 									"type": "AzurePostgreSqlSource",
 									"query": {
-										"value": "update public.audit\nset status='failed',\nend_date = start_date + interval '@{activity('act_cpy_round_result').output.copyDuration} seconds'\nwhere job_name ='@{concat('pit_stops',pipeline().parameters.season_year,'_',item().round)}';\n\n\nselect * from public.audit;",
+										"value": "update public.audit\nset status='failed',\nend_date = start_date + interval '@{activity('act_cpy_round_result').output.copyDuration} seconds'\nwhere job_name ='@{concat('pit_stops_',pipeline().parameters.season_year,'_',item().round)}';\n\n\nselect * from public.audit;",
 										"type": "Expression"
 									},
 									"partitionOption": "None"
@@ -612,7 +608,14 @@
 						{
 							"name": "act_log_insert_qualifying",
 							"type": "Lookup",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "act_log_update_complete_pit_stops",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"policy": {
 								"timeout": "0.12:00:00",
 								"retry": 0,
@@ -625,7 +628,7 @@
 								"source": {
 									"type": "AzurePostgreSqlSource",
 									"query": {
-										"value": "insert into public.audit (job_name,task_name,status,start_date,end_date) values ('@{concat('qualifying',pipeline().parameters.season_year,'_',item().round)}','copy_act','In Progress','@{convertFromUtc(utcnow(),'India Standard Time')}','@{convertFromUtc(utcnow(),'India Standard Time')}');\n\nselect * from public.audit;",
+										"value": "insert into public.audit (job_name,task_name,status,start_date,end_date) values ('@{concat('qualifying_',pipeline().parameters.season_year,'_',item().round)}','copy_act','In Progress','@{convertFromUtc(utcnow(),'India Standard Time')}','@{convertFromUtc(utcnow(),'India Standard Time')}');\n\nselect * from public.audit;",
 										"type": "Expression"
 									},
 									"partitionOption": "None"
@@ -660,7 +663,7 @@
 								"source": {
 									"type": "AzurePostgreSqlSource",
 									"query": {
-										"value": "update public.audit\nset status='completed', \nend_date = start_date + interval '@{activity('act_cpy_round_result').output.copyDuration} seconds'\nwhere job_name = '@{concat('qualifying',pipeline().parameters.season_year,'_',item().round)}';\n\n\nselect * from public.audit;",
+										"value": "update public.audit\nset status='completed', \nend_date = start_date + interval '@{activity('act_cpy_round_result').output.copyDuration} seconds'\nwhere job_name = '@{concat('qualifying_',pipeline().parameters.season_year,'_',item().round)}';\n\n\nselect * from public.audit;",
 										"type": "Expression"
 									},
 									"partitionOption": "None"
@@ -695,7 +698,7 @@
 								"source": {
 									"type": "AzurePostgreSqlSource",
 									"query": {
-										"value": "update public.audit\nset status='failed',\nend_date = start_date + interval '@{activity('act_cpy_round_result').output.copyDuration} seconds'\nwhere job_name ='@{concat('qualifying',pipeline().parameters.season_year,'_',item().round)}';\n\n\nselect * from public.audit;",
+										"value": "update public.audit\nset status='failed',\nend_date = start_date + interval '@{activity('act_cpy_round_result').output.copyDuration} seconds'\nwhere job_name ='@{concat('qualifying_',pipeline().parameters.season_year,'_',item().round)}';\n\n\nselect * from public.audit;",
 										"type": "Expression"
 									},
 									"partitionOption": "None"
