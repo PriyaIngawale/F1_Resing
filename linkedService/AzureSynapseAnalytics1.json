@@ -6,7 +6,7 @@
 		"type": "AzureSqlDW",
 		"typeProperties": {
 			"connectionString": "integrated security=False;encrypt=True;connection timeout=30;data source=priyaadmin.sql.azuresynapse.net;initial catalog=priyaadmin;user id=priyaadmin",
-			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQDREODUwNURGLTkwOTEtNEY5NC1CRTMxLTMzMDQ0MTBGMzc1M185ZDdhYWRhMC1hNjlhLTQ5NzQtOTExZC00NDcyOTVkNDk0ODMiDQp9"
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQDREODUwNURGLTkwOTEtNEY5NC1CRTMxLTMzMDQ0MTBGMzc1M181YmY2ODZlZS02OGUwLTRiNWQtYjI5OC0xNDhlNTgzNTkwNTIiDQp9"
 		}
 	}
 }
